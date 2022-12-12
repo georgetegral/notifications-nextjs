@@ -1,7 +1,7 @@
 import {
   Button,
 } from '@chakra-ui/react';
-import useFirestore from "../src/hook/firestore"
+import useFirestore from "../src/hook/firestore";
 
 export default function Home() {
   const firestore = useFirestore();
