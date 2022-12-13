@@ -25,7 +25,13 @@ export function FirestoreProvider(props) {
         const { err, db } = await FirebaseService.getFirestoreDb();
         const q = query(collection(db, "notifications"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const data = querySnapshot.docs[0]._document.data.value.mapValue.fields
+            let length = querySnapshot.docs.length;
+            console.log(length);
+            var data = {};
+            for (let i = 0; i < length; i++) {
+                data[i] = querySnapshot.docs[i]._document.data.value.mapValue.fields
+            }
+            console.log(data);
             setNotificationData(data);
         });
         console.log("subscribed")
