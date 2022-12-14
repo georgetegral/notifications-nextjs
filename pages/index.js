@@ -11,12 +11,10 @@ import {
   Center
 } from '@chakra-ui/react';
 import useFirestore from "../src/hook/firestore";
-import { useToast } from '@chakra-ui/react';
 
 export default function Home() {
   const firestore = useFirestore();
   const isFirstRender = useRef(true);
-  const toast = useToast();
   
   useEffect(() => {
     firestore.subscribeNotifications()
@@ -28,11 +26,6 @@ export default function Home() {
     event.preventDefault();
     const id = event.target.id;
     firestore.markAsSeen(id);
-    toast({
-      title: 'Marked as seen',
-      status: 'success',
-      isClosable: true
-    })
   }
 
   return (

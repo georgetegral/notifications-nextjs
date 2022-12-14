@@ -8,6 +8,7 @@ import {
 	updateDoc,
 	onSnapshot
 } from "firebase/firestore";
+import { useToast } from '@chakra-ui/react';
 
 const firestoreContext = createContext();
 
@@ -16,6 +17,7 @@ export default function useFirestore() {
 }
 
 export function FirestoreProvider(props) {
+    const toast = useToast();
     const [notificationData, setNotificationData] = useState(null);
 
     const subscribeNotifications = async() => {
@@ -38,9 +40,13 @@ export function FirestoreProvider(props) {
             const q = query(collection(db, "notifications"));
             const docs = await getDocs(q);
             if (docs.docs.length > 0) {
-                console.log(docs.docs)
 				const documentId = docs.docs[id].id;
 				const ref = doc(db, 'notifications', documentId);
+                toast({
+                    title: 'Marked as seen',
+                    status: 'success',
+                    isClosable: true
+                })
 				await updateDoc(ref, {
 					seen: true,
 				});
