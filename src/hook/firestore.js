@@ -3,11 +3,8 @@ import FirebaseService from "../service/FirebaseService";
 import {
 	query,
 	doc,
-	getDoc,
 	getDocs,
 	collection,
-	where,
-	addDoc,
 	updateDoc,
 	onSnapshot
 } from "firebase/firestore";
@@ -35,9 +32,28 @@ export function FirestoreProvider(props) {
         return () => unsubscribe();
     };
 
+    const markAsSeen = async (id) => {
+        try {
+            const { err, db } = await FirebaseService.getFirestoreDb();
+            const q = query(collection(db, "notifications"));
+            const docs = await getDocs(q);
+            if (docs.docs.length > 0) {
+                console.log(docs.docs)
+				const documentId = docs.docs[id].id;
+				const ref = doc(db, 'notifications', documentId);
+				await updateDoc(ref, {
+					seen: true,
+				});
+			}
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     const value = {
         notificationData,
-        subscribeNotifications
+        subscribeNotifications,
+        markAsSeen
     };
 
     return <firestoreContext.Provider value={value} {...props} />;
