@@ -26,15 +26,12 @@ export function FirestoreProvider(props) {
         const q = query(collection(db, "notifications"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             let length = querySnapshot.docs.length;
-            console.log(length);
             var data = {};
             for (let i = 0; i < length; i++) {
                 data[i] = querySnapshot.docs[i]._document.data.value.mapValue.fields
             }
-            console.log(data);
             setNotificationData(data);
         });
-        console.log("subscribed")
         return () => unsubscribe();
     };
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useRef, useEffect } from "react";
 import {
   Box,
   chakra,
@@ -17,20 +17,21 @@ import {
   VisuallyHidden,
   List,
   ListItem,
-  Divider
+  Divider,
+  Spinner,
+  Center
 } from '@chakra-ui/react';
 import useFirestore from "../src/hook/firestore";
 
 export default function Home() {
   const firestore = useFirestore();
-  const [notificationData, setNotificationData] = useState(null);
-
-  const handleSignUpClick = event => {
-		event.preventDefault()
+  const isFirstRender = useRef(true);
+  
+  useEffect(() => {
     firestore.subscribeNotifications()
-		setNotificationData(firestore.notificationData);
-    console.log(firestore.notificationData)
-	}
+    isFirstRender.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -45,114 +46,37 @@ export default function Home() {
                 fontWeight={'300'}>
                 Notifications
               </Text>
-              <Button
-                rounded={'full'}
-                variant={'solid'}
-                colorScheme={'teal'}
-                onClick={handleSignUpClick}>
-                Get Notifications
-              </Button>
             </HStack>
-            {notificationData && (
+            {firestore.notificationData ? (
               <>
-                {Object.keys(notificationData).map((keyName, i) => (
-                  <Box>
+                {Object.keys(firestore.notificationData).map((keyName, i) => (
+                  <Box key={i}>
                     <Text
                       fontSize={{ base: '16px', lg: '18px' }}
-                      color={useColorModeValue('yellow.500', 'yellow.300')}
                       fontWeight={'500'}
                       textTransform={'uppercase'}
                       mb={'4'}>
-                      {notificationData[i]['title']['stringValue']}
+                      {firestore.notificationData[i]['title']['stringValue']}
                     </Text>
-                    <span>Date: {notificationData[i]['date']['timestampValue']}</span>
-                    <span>Description: {notificationData[i]['description']['stringValue']}</span>
-                    <span>Seen: {notificationData[i]['seen']['booleanValue']}</span>
+                    <HStack justifyContent={'space-between'}>
+                      <Text as={'span'} fontWeight={'bold'}>
+                        {firestore.notificationData[i]['description']['stringValue']}
+                      </Text>
+                      <Text as={'span'}>
+                        {new Date(firestore.notificationData[i]['date']['timestampValue']).toLocaleDateString()}
+                      </Text>
+                    </HStack>
                     <Divider />
                   </Box>
                   
                 ))}
               </>
+            ) : (
+              <Center>
+                <Spinner size='xl' />
+              </Center>
+              
             )}
-            <Box>
-              <Text
-                fontSize={{ base: '16px', lg: '18px' }}
-                color={useColorModeValue('yellow.500', 'yellow.300')}
-                fontWeight={'500'}
-                textTransform={'uppercase'}
-                mb={'4'}>
-                Features
-              </Text>
-
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-                <List spacing={2}>
-                  <ListItem>Chronograph</ListItem>
-                  <ListItem>Master Chronometer Certified</ListItem>{' '}
-                  <ListItem>Tachymeter</ListItem>
-                </List>
-                <List spacing={2}>
-                  <ListItem>Anti‑magnetic</ListItem>
-                  <ListItem>Chronometer</ListItem>
-                  <ListItem>Small seconds</ListItem>
-                </List>
-              </SimpleGrid>
-            </Box>
-            <Box>
-              <Text
-                fontSize={{ base: '16px', lg: '18px' }}
-                color={useColorModeValue('yellow.500', 'yellow.300')}
-                fontWeight={'500'}
-                textTransform={'uppercase'}
-                mb={'4'}>
-                Product Details
-              </Text>
-
-              <List spacing={2}>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Between lugs:
-                  </Text>{' '}
-                  20 mm
-                </ListItem>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Bracelet:
-                  </Text>{' '}
-                  leather strap
-                </ListItem>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Case:
-                  </Text>{' '}
-                  Steel
-                </ListItem>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Case diameter:
-                  </Text>{' '}
-                  42 mm
-                </ListItem>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Dial color:
-                  </Text>{' '}
-                  Black
-                </ListItem>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Crystal:
-                  </Text>{' '}
-                  Domed, scratch‑resistant sapphire crystal with anti‑reflective
-                  treatment inside
-                </ListItem>
-                <ListItem>
-                  <Text as={'span'} fontWeight={'bold'}>
-                    Water resistance:
-                  </Text>{' '}
-                  5 bar (50 metres / 167 feet){' '}
-                </ListItem>
-              </List>
-            </Box>
           </Stack>
     </>
   )
